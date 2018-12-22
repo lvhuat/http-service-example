@@ -1,8 +1,7 @@
 手册
 ---------------
 
-一些固定的规则
--------------------
+
 
 #### 返回的数据格式固定
 
@@ -29,4 +28,17 @@
 }
 ```
 
-协议传输的对象放在pb/xxxpb中,使用protobuf来生成对象,如果不需要omitempty,则可以重新编译proto-gen-go或使用脚本去除
+目录和主要文件
+------------
+- common 存放一些工具和一些常量  
+- conf 配置解析  
+- dto 数据库模型和操作  
+- httpserver http服务  
+- invokes 内部其他微服务的接口调用  
+- pb 接口传输模型  
+- rcontxt 接口上下文,包含了数据的解析,接口参数逻辑无关的判断  
+- service 逻辑整合  
+- testcmd 集成测试命令行工具  
+- app.toml 配置文件  
+- Dockerfile docker文件  
+- main.go  
