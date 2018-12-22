@@ -11,6 +11,7 @@
     "result":false,
     "mcode":"PARAMETER_ERROR",
     "message":"invalid parameter,'xxx' is empty",
+    "timestamp":1545471685000
 }
 ```
 
@@ -24,6 +25,7 @@
         "email":"demo@lwork.com",
         "mobile":"+861888888888"
         "address":"四川省成都市XXXX",
+        "timestamp":1545471685000
     }
 }
 ```
