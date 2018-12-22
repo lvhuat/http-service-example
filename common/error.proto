@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package common;
+
+
+enum Error {
+    OK = 0;
+    UAPI_NOT_FOUND = 1;
+    UAPI_ALREADY_EXISTS = 2;
+    UAPI_PARAMETER_ERROR = 3;
+    UAPI_BAD_EMAIL = 4;
+}

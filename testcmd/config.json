@@ -1,0 +1,9 @@
+{
+    "remote":"127.0.0.1:8080",
+    "scheme":"http",
+    "json":true,
+    "feignKey":{
+        "tradePlatform":"binance",
+        "userId":"17"
+    }
+}

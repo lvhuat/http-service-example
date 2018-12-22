@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package userpb;
+
+message CreateUserRequest {
+    string userName = 1;
+    string password = 2;
+    string mobile = 3;
+    string email = 4;
+    string birthday = 5;
+    string address = 6;
+}
+
+message CreateUserResponse {
+    int64 userId = 1;
+    // Nothing
+}
+
+message UpdateUserRequest {
+    string userName = 1;
+    string mobile = 3;
+    string email = 4;
+    string birthday = 5;
+    string address = 6;
+}
+
+message UpdateUserResponse {
+    // Nothing
+}
+
+message QueryUserRequest {
+    string userName = 1;
+}
+
+message QueryUserResponse {
+    int64 userId = 1;
+    string userName = 2;
+    string mobile = 3;
+    string email = 4;
+    string birthday = 5;
+    string address = 6;
+}
+
+message UserListItem {
+    int64 userId = 1;
+    string userName = 2;
+    string mobile = 3;
+    string email = 4;
+    string birthday = 5;
+    string address = 6;
+}
+
+enum QueryDirect {
+    QueryDirect_NA = 0;
+    NEXT = 1;
+    PREV = 2;
+}
+
+message QueryUserListRequest {
+    int64 createTime = 1;
+    string direct = 2;
+    int32 limit = 3;
+}
+
+message QueryUserListResponse {
+    repeated UserListItem users = 1;
+}
