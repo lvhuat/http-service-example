@@ -1,12 +1,12 @@
 package main
 
 import (
-	"cryptobroker/tradenode/testcmd/testtrade/app"
-	"cryptobroker/tradenode/testcmd/testtrade/config"
 	"os"
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/lvhuat/http-service-example/testcmd/app"
+	"github.com/lvhuat/http-service-example/testcmd/config"
 	"github.com/lworkltd/kits/service/invoke"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"

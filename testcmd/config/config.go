@@ -1,7 +1,6 @@
 package config
 
 import (
-	"cryptobroker/tradenode/testcmd/testtrade/app"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/lvhuat/http-service-example/testcmd/app"
 	"github.com/lworkltd/kits/service/restful/code"
 	"github.com/lworkltd/kits/utils/jsonize"
 )
