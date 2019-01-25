@@ -16,6 +16,7 @@ message CreateUserResponse {
     // Nothing
 }
 
+
 message UpdateUserRequest {
     string userName = 1;
     string mobile = 3;

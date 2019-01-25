@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
 	"github.com/lworkltd/kits/service/restful/code"
+	"github.com/sirupsen/logrus"
 )
 
 var (

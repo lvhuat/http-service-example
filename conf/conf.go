@@ -1,22 +1,23 @@
 package conf
 
 import (
+	"fmt"
+	"os"
 	"strings"
+	"time"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/lworkltd/kits/helper/consul"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/lvhuat/http-service-example/common"
 	"github.com/lworkltd/kits/service/discovery"
 	"github.com/lworkltd/kits/service/invoke"
 	"github.com/lworkltd/kits/service/profile"
-	"github.com/lworkltd/kits/utils/eval"
-	"github.com/lworkltd/kits/utils/ipnet"
 	"github.com/lworkltd/kits/utils/jsonize"
-	"github.com/lworkltd/kits/utils/log"
+	"github.com/rifflock/lfshook"
+	"github.com/sirupsen/logrus"
 )
 
 type Profile struct {
 	Base        profile.Base
-	Consul      profile.Consul
 	Service     profile.Service
 	Invoker     profile.Invoker
 	Logger      profile.Logger
@@ -33,7 +34,66 @@ func Parse(f ...string) error {
 	if len(f) > 0 {
 		fileName = f[0]
 	}
+
 	return configuration.Init(fileName)
+}
+
+func initLogHook() error {
+	path := "log.d/service.log"
+	writer, err := rotatelogs.New(
+		path+".%Y%m%d%H%M",
+		rotatelogs.WithLinkName("service.log"),       // 创建最新日志的链接
+		rotatelogs.WithMaxAge(24*time.Hour),          // 每天一个日志文件
+		rotatelogs.WithRotationTime(24*time.Hour*50), // 至多保存50天的日志
+	)
+	if err != nil {
+		return fmt.Errorf("create log file error,%v", err)
+	}
+
+	logrus.AddHook(lfshook.NewHook(
+		lfshook.WriterMap{
+			logrus.InfoLevel:  writer,
+			logrus.ErrorLevel: writer,
+		},
+		&common.TextFormatter{}, // 自定义的日志格式
+	))
+
+	return nil
+}
+
+// InitLoggerWithProfile 初始化日志
+func InitLoggerWithProfile(cfg *profile.Logger) error {
+	switch cfg.Format {
+	case "json":
+		logrus.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: cfg.TimeFormat,
+		})
+		logrus.Debug("Use json format logger")
+	case "text", "":
+		logrus.SetFormatter(&common.TextFormatter{
+			UppercaseFirstMsgLetter: true,
+		})
+		logrus.Debug("Use text format logger")
+	default:
+		return fmt.Errorf("unsupport logrus formatter type %s", cfg.Format)
+	}
+	if cfg.Level != "" {
+		logLevel, err := logrus.ParseLevel(cfg.Level)
+		if err != nil {
+			return fmt.Errorf("cannot parse logger level %s", cfg.Level)
+		}
+		logrus.SetLevel(logLevel)
+	}
+
+	if "" != cfg.LogFilePath {
+		file, err := os.OpenFile(cfg.LogFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0660)
+		if nil != err {
+			return fmt.Errorf("Open log file failed, err:%v, log file path:%v", err, cfg.LogFilePath)
+		}
+		logrus.SetOutput(file)
+	}
+
+	return initLogHook()
 }
 
 func makeStaticDiscover(lines []string) (func(string) ([]string, []string, error), error) {
@@ -55,39 +115,20 @@ func makeStaticDiscover(lines []string) (func(string) ([]string, []string, error
 	return s.Discover, nil
 }
 
+// Init 初始化配置
 func (pro *Profile) Init(tomlFile string) error {
 	_, _, err := profile.Parse(tomlFile, pro)
 	if err != nil {
 		return err
 	}
 
-	if err := log.InitLoggerWithProfile(&pro.Logger); err != nil {
-		return err
-	}
-
-	consulClient, err := consul.New(pro.Consul.Url)
-	if err != nil {
-		return err
-	}
-	consul.SetClient(consulClient)
-
-	// 注册eval解析器
-	eval.RegisterKeyValueExecutor("kv_of_consul", consulClient.KeyValue)
-	eval.RegisterKeyValueExecutor("ip_of_interface", ipnet.Ipv4)
-
-	// 将填充配置中使用了eval语法
-	if err := eval.Complete(&pro); err != nil {
+	if err := InitLoggerWithProfile(&pro.Logger); err != nil {
 		return err
 	}
 
 	// Discover 服务发现
 	var discoverOption discovery.Option
-	discoverOption.RegisterFunc = consulClient.Register
-	discoverOption.UnregisterFunc = consulClient.Unregister
-	if pro.Discovery.EnableConsul {
-		discoverOption.SearchFunc = consulClient.Discover
-		logrus.Debug("consul discovery enabled")
-	}
+	pro.Discovery.EnableConsul = false
 	if pro.Discovery.EnableStatic {
 		staticsDiscovery, err := makeStaticDiscover(pro.Discovery.StaticServices)
 		if err != nil {
@@ -110,16 +151,12 @@ func (pro *Profile) Init(tomlFile string) error {
 		DefaultErrorPercentThreshold: 20,
 		DefaultTimeout:               18000,
 	}
-	if err := invoke.Init(invokeOption); err != nil {
-		return err
-	}
 
-	return nil
+	return invoke.Init(invokeOption)
 }
 
 func Dump() {
-	mutiline := log.IsMultiLineFormat(configuration.Logger.Format)
-	logrus.WithField("profile", jsonize.V(configuration, mutiline)).Info("Dump profile")
+	logrus.WithField("profile", jsonize.V(configuration, true)).Info("Dump profile")
 }
 
 // GetService 根据自己需要对方放出配置项目

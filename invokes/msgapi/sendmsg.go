@@ -2,7 +2,6 @@ package msgapi
 
 import (
 	"github.com/lworkltd/kits/service/invoke"
-	invokeutils "github.com/lworkltd/kits/utils/invoke"
 )
 
 var (
@@ -19,24 +18,20 @@ type SendMailResponse struct {
 	DealId string `json:"dealId"`
 }
 
-func SendEmailToUser(req *SendMailRequest) error {
-	httpRsp, err := invoke.Addr(seviceAddr).
+func SendEmailToUser(req *SendMailRequest) (*SendMailResponse, error) {
+	var dataRsp SendMailResponse
+	err := invoke.Addr(seviceAddr).
 		Post("/msgapi/v1/mail/send").
 		Hystrix(100000, 0, 0).
 		Json(req).
-		Response()
-
-	var dataRsp SendMailResponse
-	cerr := invokeutils.ExtractHttpResponse(seviceAddr, err, httpRsp, &dataRsp)
-	if cerr != nil {
-		return cerr
+		Result(&dataRsp)
+	if err != nil {
+		return nil, err
 	}
-
-	return nil
-
+	return &dataRsp, nil
 }
 
-func SendRegisterVerifyMail(user, email, verifyCode string) error {
+func SendRegisterVerifyMail(user, email, verifyCode string) (string, error) {
 	req := &SendMailRequest{
 		Email:      email,
 		TemplateId: "REGISTER_VERIFY_CODE",
@@ -46,5 +41,11 @@ func SendRegisterVerifyMail(user, email, verifyCode string) error {
 		},
 	}
 
-	return SendEmailToUser(req)
+	rsp, err := SendEmailToUser(req)
+	if err != nil {
+		return "", err
+	}
+
+	return rsp.DealId, nil
+
 }

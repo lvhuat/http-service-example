@@ -10,7 +10,7 @@ import (
 
 	"runtime"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func perr(action string, err error) {
@@ -24,7 +24,6 @@ func perr(action string, err error) {
 func main() {
 	runtime.GOMAXPROCS(2)
 
-	logrus.SetLevel(logrus.DebugLevel)
 	if err := conf.Parse(); err != nil {
 		perr("conf.Parse", err)
 	}

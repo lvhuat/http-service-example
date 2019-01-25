@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lvhuat/http-service-example/rcontext"
-	"github.com/lworkltd/kits/service/context"
 	"github.com/lworkltd/kits/service/restful/code"
 )
 
@@ -81,8 +80,8 @@ func checkSnowSlide(showCount int32) error {
 	return nil
 }
 
-func Wrap(f func(ctx rcontext.RContext) (interface{}, error)) func(srvContext context.Context, ginContext *gin.Context) (interface{}, code.Error) {
-	return func(srvContext context.Context, ginContext *gin.Context) (interface{}, code.Error) {
+func Wrap(f func(ctx rcontext.RContext) (interface{}, error)) func(ginContext *gin.Context) (interface{}, code.Error) {
+	return func(ginContext *gin.Context) (interface{}, code.Error) {
 		if ginContext.Request.URL.Path == "/ping" {
 			return nil, nil
 		}
