@@ -39,6 +39,7 @@ func Parse(f ...string) error {
 }
 
 func initLogHook() error {
+	os.Mkdir("log.d", 0666)
 	path := "log.d/service.log"
 	writer, err := rotatelogs.New(
 		path+".%Y%m%d%H%M",

@@ -3,21 +3,19 @@ package httpserver
 import (
 	"github.com/DeanThompson/ginpprof"
 	"github.com/gin-gonic/gin"
+	"github.com/lworkltd/kits/service/httpsrv"
 	"github.com/lworkltd/kits/service/profile"
-	"github.com/lworkltd/kits/service/restful/wrap"
 )
 
 var errPrefix string
-var wrapper *wrap.Wrapper
+var wrapper *httpsrv.Wrapper
 
 // TODO: 在gin所监听的接口同时处理pprof
 func initService(engine *gin.Engine, option *profile.Service) error {
-	wrapper = wrap.New(&wrap.Option{
+	wrapper = httpsrv.New(&httpsrv.Option{
 		Prefix: option.McodePrefix,
 	})
-
 	errPrefix = option.McodePrefix
-
 	if option.PprofEnabled {
 		if option.PathPrefix != "" {
 			ginpprof.WrapGroup(engine.Group(option.PathPrefix))
@@ -25,7 +23,6 @@ func initService(engine *gin.Engine, option *profile.Service) error {
 			ginpprof.Wrapper(engine)
 		}
 	}
-
 	return nil
 }
 
@@ -58,6 +55,6 @@ func Run(option *profile.Service) error {
 func routeV1(v1 *gin.RouterGroup) {
 	wrapper.Post(v1, "/user/create", Wrap(CreateUserRequest))
 	wrapper.Post(v1, "/user/update", Wrap(CreateUserRequest))
-	wrapper.Post(v1, "/user", Wrap(QueryUserListRequest))
+	wrapper.Get(v1, "/user", Wrap(QueryUserListRequest))
 	wrapper.Post(v1, "/user/list", Wrap(QueryUserListRequest))
 }

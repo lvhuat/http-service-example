@@ -9,34 +9,20 @@ mode="dev"
 format="text"
 # 日志等级
 level="debug"
-# 日志的时间格式
-time_format="20060102 15:04:04.999"
 
 [service]
 # 监听地址
 host=":8080"
-# 路径前缀
-path_prefix=""
-# 服务错误码前缀，不包含调用错误和其他服务的错误
-mcode_prefix="TRADE"
-# 启用调用追踪
-trace_enabled=true
-# 打印接入日志
-access_log_enabled=true
-# 注册服务，容器化需要关闭
-reportable = false
-
 # PPROF 启用
 pprof_enabled = true
-# PPROF 路径前缀
-pprof_path_prefix=""
-
 
 [discovery]
 # 启用静态服务发现
 enable_static = true
+enable_consul = false
 # 静态服务地址
 static_services = [
+    "otherservice 127.0.0.1:9091 127.0.0.1:9092"
 ]
 
 [hystrix]
@@ -47,8 +33,6 @@ max_concurrent_request=200
 error_percent_threshold=20
 
 [invoker]
-# 负载均衡策略
-load_balance_mode = "round-robin"
 # 启用调用追踪
 tracing_enabled = true
 # 启用熔断
@@ -57,7 +41,7 @@ hytrix_enabled = true
 do_logger = true
 
 [mysql]
-url= "root:lw123456@tcp(120.76.47.222:3306)/cryptobroker_1"
+url= "root:lw123456@tcp(120.76.47.222:3306)/server_test"
 
 [application]
 

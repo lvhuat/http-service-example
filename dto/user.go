@@ -40,7 +40,7 @@ func (user *User) GetList(createTime int64, limit int32, direct string) ([]*User
 	qdb = qdb.Limit(limit)
 
 	users := []*User{}
-	if err := qdb.Find(users).Error; err != nil {
+	if err := qdb.Find(&users).Error; err != nil {
 		return nil, dbError2CodeError(err)
 	}
 
