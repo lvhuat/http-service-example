@@ -7,10 +7,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/lvhuat/http-service-example/testcmd/app"
 	"github.com/lworkltd/kits/service/restful/code"
 	"github.com/lworkltd/kits/utils/jsonize"
+	"github.com/sirupsen/logrus"
 )
 
 type XFeignKey struct {

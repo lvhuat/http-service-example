@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/lworkltd/kits/service/httpsrv"
 	"github.com/sirupsen/logrus"
-	"github.com/gin-gonic/gin"
 )
 
 type tradeMux struct {
-	ginEngine *gin.Engine
-	addr      string
+	wrapper *httpsrv.Wrapper
+	addr    string
 }
 
 func (mux *tradeMux) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -18,8 +18,7 @@ func (mux *tradeMux) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		handleWs(w, req)
 		return
 	}
-
-	mux.ginEngine.ServeHTTP(w, req)
+	mux.wrapper.ServeHTTP(w, req)
 }
 
 func (mux *tradeMux) run() (err error) {
@@ -29,7 +28,9 @@ func (mux *tradeMux) run() (err error) {
 		}
 		logrus.Errorf("ListenAndServe failed,%v", err)
 	}()
-	logrus.Infof("Listening and serving HTTP on %s\n", mux.addr)
+
+	log.WithField("on", mux.addr).Infof("Serve HTTP")
 	err = http.ListenAndServe(mux.addr, mux)
+
 	return
 }

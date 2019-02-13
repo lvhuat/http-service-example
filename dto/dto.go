@@ -44,7 +44,7 @@ func initMysql(url string) error {
 
 	initTables(&User{})
 
-	logrus.Debugln("initMysql ok")
+	log.Debugln("Init MYSQL")
 
 	return nil
 }

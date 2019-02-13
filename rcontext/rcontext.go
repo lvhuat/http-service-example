@@ -19,7 +19,6 @@ var (
 // RContext RContext是隔离网络层和业务层的中间层
 type RContext interface {
 	DebugApi() bool              // 用的表较少，返回表示本请求时debug属性，业务层可以根据需要做对应处理
-	GinContext() *gin.Context    // Deprecated
 	FeignKey() *common.XFeignKey // 大家用的比较多所以加上了
 	ApiDesc() string             // Api的描述，用简短的语句表达本请求，比如 GET:/v1/user 或 GRPC:GetUser
 	LogEntry() *logrus.Entry     // 默认日志打印，里面会带本请求的默认参数，比如userId，traceId，API名称等

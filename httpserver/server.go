@@ -1,60 +1,68 @@
 package httpserver
 
 import (
-	"github.com/DeanThompson/ginpprof"
+	"github.com/sirupsen/logrus"
+
 	"github.com/gin-gonic/gin"
+	"github.com/lvhuat/http-service-example/rcontext"
 	"github.com/lworkltd/kits/service/httpsrv"
 	"github.com/lworkltd/kits/service/profile"
 )
 
 var errPrefix string
 var wrapper *httpsrv.Wrapper
+var log = logrus.WithField("pkg", "httpserver")
 
-// TODO: 在gin所监听的接口同时处理pprof
-func initService(engine *gin.Engine, option *profile.Service) error {
+func init() {
+	gin.SetMode(gin.ReleaseMode)
+}
+
+func initService(option *profile.Service) error {
 	wrapper = httpsrv.New(&httpsrv.Option{
 		Prefix: option.McodePrefix,
 	})
+
 	errPrefix = option.McodePrefix
+
 	if option.PprofEnabled {
-		if option.PathPrefix != "" {
-			ginpprof.WrapGroup(engine.Group(option.PathPrefix))
+		if option.PprofPathPrefix != "" {
+			wrapper.Group(option.PprofPathPrefix).HandlePprof()
 		} else {
-			ginpprof.Wrapper(engine)
+			wrapper.HandlePprof()
 		}
 	}
+
 	return nil
 }
 
+// Run 启动HTTP服务
 func Run(option *profile.Service) error {
-	r := gin.New()
-	r.Use(Cors())
-	r.Use(gin.Recovery())
-	//gin.SetMode(gin.ReleaseMode)
-	if err := initService(r, option); err != nil {
+	if err := initService(option); err != nil {
 		return err
 	}
 
-	root := r.Group("/")
+	root := wrapper.Group("/")
 	if option.PathPrefix != "" {
 		root = root.Group(option.PathPrefix)
 	}
 
-	wrapper.Get(root, "/ping", Wrap(OK))
-	wrapper.Post(root, "/ping", Wrap(OK))
-	routeV1(root.Group("/userapi/v1"))
+	wrapper.Any("/ping", rcontext.Wrap(OK))
+	wrapper.HandleStat()
 
+	v1 := wrapper.Group("/userapi/v1")
+	v1.Post("/user/create", rcontext.Wrap(CreateUserRequest))
+	v1.Post("/user/update", rcontext.Wrap(UpdateUserRequest))
+	v1.Get("/user", rcontext.Wrap(QueryUserListRequest))
+	v1.Post("/user/list", rcontext.Wrap(QueryUserListRequest))
+	v1.HandlePprof()
+	v1.HandleStat()
 	httpServer := &tradeMux{
-		ginEngine: r,
-		addr:      option.Host,
+		wrapper: wrapper,
+		addr:    option.Host,
 	}
 
 	return httpServer.run()
 }
 
 func routeV1(v1 *gin.RouterGroup) {
-	wrapper.Post(v1, "/user/create", Wrap(CreateUserRequest))
-	wrapper.Post(v1, "/user/update", Wrap(CreateUserRequest))
-	wrapper.Get(v1, "/user", Wrap(QueryUserListRequest))
-	wrapper.Post(v1, "/user/list", Wrap(QueryUserListRequest))
 }

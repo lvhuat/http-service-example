@@ -51,7 +51,7 @@ type TextFormatter struct {
 
 func (f *TextFormatter) init(entry *logrus.Entry) {
 	if len(f.StartQuoteCharacter) == 0 {
-		f.EndQuoteCharacter = "\""
+		f.StartQuoteCharacter = "\""
 	}
 	if len(f.EndQuoteCharacter) == 0 {
 		f.EndQuoteCharacter = "\""
