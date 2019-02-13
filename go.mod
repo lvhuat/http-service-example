@@ -23,7 +23,7 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.2.0+incompatible
 	github.com/lestrrat-go/strftime v0.0.0-20180821113735-8b31f9c59b0f // indirect
 	github.com/lib/pq v1.0.0 // indirect
-	github.com/lworkltd/kits v0.0.6
+	github.com/lworkltd/kits v0.0.7
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.3.0
